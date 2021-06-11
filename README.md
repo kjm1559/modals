@@ -20,7 +20,7 @@ $ python run_mnist.py
 
 |dataset|best accuracy|
 |:------|------------:|
-|IRIS(s)|1000%|
+|IRIS(s)|100%|
 |MNIST|93%|
 |CIFAR10| 70%|
 
