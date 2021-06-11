@@ -35,47 +35,14 @@ class modals(tf.keras.Model):
         return tf.keras.Model(inputs, outputs, name='discriminator')
     
     def cal_latent(self, X, training=False):
-#         z = []
-#         for i in range(len(X)):#(self.batch_size):
-#             z.append(self.fe(np.expand_dims(X[i], axis=0), training=training)[0])
-#         return np.array(z)
         return self.fe(X, training=training)
-
-       
-    def triplet_selector(self, training=False):
-        # in same mini batch
-        # select ramdom class, 
-        cosine_dist = tf.keras.losses.cosine_similarity
-        
-        z = []
-        z_inclass = []
-        z_outclass = []
-        for key in self.z_data_dict.keys():
-            z += self.z_data_dict[key].numpy().tolist()
-            tmp_outclass = self.__get_outclass_z(key)
-            for i in range(len(self.z_data_dict[key])):
-                z_outclass += [tmp_outclass[np.random.randint(len(tmp_outclass))].numpy().tolist()]
-            tmp_inclass = self.z_data_dict[key]
-            index = np.arange(len(tmp_inclass))
-            np.random.shuffle(index)
-            z_inclass += tmp_inclass.numpy()[index].tolist()
-            
-        z = np.array(z)
-        z_inclass = np.array(z_inclass)
-        z_outclass = np.array(z_outclass)
-        
-        return K.mean((1-cosine_dist(z, z_inclass, axis=1)) - (1-cosine_dist(z, z_outclass, axis=1)) + self.gamma)
-#         return K.mean(K.sum(K.sqrt(K.square(z - z_inclass))) - K.sum(K.sqrt(K.square(z - z_outclass))) + self.gamma)
     
     def __cosine_distance(self, a, b):
         return 1 - K.sum(a * b) / (K.sqrt(K.sum(K.square(a))) * K.sqrt(K.sum(K.square(b))))
     
     def tf_triplet_selector(self, z, y, training=False):
-#         cosine_dist = tf.keras.losses.cosine_similarity
-        cosine_dist = tf.keras.losses.CosineSimilarity(axis=-1, reduction=tf.keras.losses.Reduction.NONE)
         z_inclass = []
         z_outclass = []
-        z_hat = tf.unstack(z)
         for i in range(y.shape[0]):
             idx_in = np.random.choice(np.where(np.argmax(y, axis=1) == np.argmax(y[i]))[0], 1)[0]
             z_inclass.append(z[idx_in])
@@ -151,7 +118,6 @@ class modals(tf.keras.Model):
 
         z_hat = tf.stack(z_hat)
         classes = self.dl(z_hat, training=training)
-
         
 #         return K.mean(tf.keras.losses.categorical_crossentropy(np.array(new_y), classes))
         return -K.mean((K.log(K.sum(y * classes, axis=1) + 1e-8)))
@@ -194,8 +160,6 @@ class modals(tf.keras.Model):
         
         if X.shape[0] != None:
             with tf.GradientTape() as tape:
-#                 if len(X.shape) != 3:
-#                     print(X.shape, X)
                 z = self.fe(X, training=True)
                 for key in self.X_data_dict.keys():
                     self.z_data_dict[key] = z[np.argmax(y, axis=1) == key]#self.cal_latent(self.X_data_dict[key], training=True)
@@ -204,15 +168,11 @@ class modals(tf.keras.Model):
                 adversarial_loss = -K.mean(K.log(self.dis(z, training=False) + 1e-8))
 
                 loss_M = classification_loss + self.alpha * adversarial_loss + self.beta * triplet_loss
-#                 loss_M = classification_loss#*0.01 + tf.cast(triplet_loss, 'float32')
 
             grads_M = tape.gradient(loss_M, self.classifier.trainable_variables)
             self.M_optimizer.apply_gradients(zip(grads_M, self.classifier.trainable_variables))
-#             grads_M = tape.gradient(loss_M, self.fe.trainable_variables)
-#             self.M_optimizer.apply_gradients(zip(grads_M, self.fe.trainable_variables))
 
             with tf.GradientTape() as tape:
-#                 z = np.concatenate([self.z_data_dict[key] for key in self.z_data_dict.keys()], axis=0)
                 z = self.fe(X, training=True)
 #                 norm_z = tf.random.normal(z.shape, mean=0.0, stddev=np.std(z, axis=0), dtype=tf.float32)
                 norm_z = tf.random.normal(z.shape, mean=0.0, stddev=1, dtype=tf.float32)
