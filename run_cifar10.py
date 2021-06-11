@@ -49,14 +49,7 @@ if __name__ == '__main__':
     
     model = modals(batch_size=128)
     model.set_model(1, X_train.shape[1:], y_train.shape[-1], 32)
-    
-    # model change
-#     model.fe = make_cov_model(X_train.shape[1:], 32, False)
-#     inputs = tf.keras.Input(shape=X_train.shape[1:])
-#     outputs = model.dl(model.fe(inputs))
-#     model.classifier = tf.keras.Model(inputs=inputs, outputs=outputs, name='classifier')
-#     print(model.fe(X_train[:3]).shape)
-    
+        
     model.compile(optimizer = [tf.keras.optimizers.Adam(1e-3), tf.keras.optimizers.Adam(5e-4)])
     
     dir_path = 'result_run_cifar10/'
