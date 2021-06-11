@@ -184,29 +184,14 @@ def train(model, X_train, y_train, X_val, y_val, fold, path='result/', epoch=100
         # train plot
         ax1 = plt.subplot(121)
         draw_result(ax1, X_train, y_train, model)
-#         z = model.fe(X_train[index])
-#         pca.fit(z)
-#         z_t = pca.transform(z)
-        
-#         for iii in range(index.shape[0]):
-#             ax1.scatter(z_t[np.argmax(y_train[index[iii]], axis=1) == iii][:, 0], z_t[np.argmax(y_train[index[iii]], axis=1) == iii][:, 1], alpha=0.3, label=str(iii))
-
         
         # validation plot
         ax2 = plt.subplot(122)
         draw_result(ax2, X_val, y_val, model, False)
-#         index = np.arange(X_val.shape[0])
-#         z = model.fe(X_val)
-#         pca.fit(z)
-#         z_t = pca.transform(z)
-        
-#         for iii in range(y_val.shape[-1]):
-#             ax2.scatter(z_t[np.argmax(y_val, axis=1) == iii][:, 0], z_t[np.argmax(y_val, axis=1) == iii][:, 1], alpha=0.3, label=str(iii))
 
         plt.legend()
         plt.title('best loss :' + str(best_loss) + 'search end,' + metric + ' :' + str(rr))
         plt.savefig(path + str(fold) + 'fold_' + str(i+3) + 'epoch.png')
-#         plt.show()
         
         print(accuracy_score(np.argmax(y_val, axis=1), np.argmax(y_pred, axis=1)))
 
@@ -221,7 +206,5 @@ def draw_result(ax, X, y, model, flag=True):
     
     for i in range(y.shape[-1]):
         ax.scatter(z_t[np.argmax(y[index], axis=1) == i][:, 0], z_t[np.argmax(y[index], axis=1) == i][:, 1], alpha=0.3, label=str(i))
-        #         plt.scatter(z_t[np.argmax(y_val, axis=1) == 0][:, 0], z_t[np.argmax(y_val, axis=1) == 0][:, 1], alpha=0.3, label='1')
     return pca
     
-# train(model, X_train[:1000], y_train[:1000], X_test[:1000], y_test[:1000], 0)
