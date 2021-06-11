@@ -15,8 +15,9 @@ $ python run_mnist.py
   </p>
   <p>Result of sample 1000 in MNIST dataset of latent vector</p>
 </div>
+
 - Right : train data sample 1000    
-- left : test data sample 1000   
+- Left : test data sample 1000   
 
 |dataset|best accuracy|
 |:------|------------:|
